@@ -1,3 +1,72 @@
+
+import datetime
+import json
+import os
+
+class StateTracker:
+    def __init__(self, filename="state_log.json"):
+        self.filename = filename
+        self.logs = self.load_logs()
+
+    def load_logs(self):
+        if os.path.exists(self.filename):
+            try:
+                with open(self.filename, "r") as file:
+                    return json.load(file)
+            except json.JSONDecodeError:
+                return []
+        return []
+
+    def save_logs(self):
+        with open(self.filename, "w") as file:
+            json.dump(self.logs, file, indent=4)
+
+    def log_state(self, state_name, notes=""):
+        entry = {
+            "timestamp": datetime.datetime.now().isoformat(),
+            "state_name": state_name,
+            "notes": notes
+        }
+        self.logs.append(entry)
+        self.save_logs()
+        print(f"Logged state: '{state_name}' at {entry['timestamp']}")
+
+    def view_history(self):
+        if not self.logs:
+            print("No states logged yet.")
+            return
+        print("\n--- State Transition History ---")
+        for entry in self.logs:
+            print(f"Time: {entry['timestamp']} | State: {entry['state_name']} | Notes: {entry['notes']}")
+
+if __name__ == "__main__":
+    tracker = StateTracker()
+    
+    while True:
+        print("\n1. Log State Transition")
+        print("2. View History")
+        print("3. Exit")
+        choice = input("Select an option: ")
+        
+        if choice == "1":
+            state = input("Enter current state/identity name: ")
+            note = input("Enter any notes (optional): ")
+            tracker.log_state(state, note)
+        elif choice == "2":
+            tracker.view_history()
+        elif choice == "3":
+            break
+        else:
+            print("Invalid option. Please try again.")
+
+
+
+
+
+
+
+
+
 Mozilla Public License Version 2.0
 ==================================
 
